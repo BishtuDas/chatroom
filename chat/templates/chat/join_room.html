@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Token Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(ellipse at bottom, #42e626 0%, #000000 60%);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 80px;
+            
+        }
+
+        .handwritten {
+            font-family: 'Pacifico', cursive;
+            font-size: 2.5rem;
+            color: white;
+            margin-top: 10px;
+            transform: rotate(-5deg);
+        }
+
+        .strike {
+            color: white;
+            font-size: 1.5rem;
+            position: relative;
+            text-decoration: line-through;
+            margin-top: -10px;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 400px;
+            padding: 0 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: none;
+            border-bottom: 2px solid white;
+            background: transparent;
+            color: white;
+            text-align: center;
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 20px;
+            background-color: white;
+            color: black;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+
+        .floating-x {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .floating-x img {
+            width: 60px;  /* increase size here */
+            height: 60px;
+            border-radius: 50%; /* optional: make it circular */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .floating-x:hover img {
+            transform: scale(1.1);
+        }
+
+
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+<a href="https://twitter.com/yourprofile" target="_blank" class="floating-x">
+    <img src="{% static 'img/7740647.webp' %}" alt="X Logo" />
+</a>
+
+    <div class="logo">
+        <img src="{% static 'loqui.png' %}" alt="Logo">
+        <div class="handwritten">Loqui</div>
+        
+    </div>
+
+    <div class="content">
+        {% if error %}
+        <div class="error-message" style="color:red; text-align:center;">{{ error }}</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="token_address" placeholder="Enter Contract Address" required value="{{ request.POST.token_address }}">
+            <button type="submit">Join Chat</button>
+        </form>
+    </div>
+
+    <div class="footer" style="color:black;">
+        © token chat to Loqui.
+    </div>
+
+</body>

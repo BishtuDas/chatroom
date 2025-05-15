@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{ token_data.name }} - Token Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #0d1f0d;
+            color: #e0f2e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+
+        /* Token details panel */
+        .token-panel {
+            width: 100%;
+            background-color: #1a2e1a;
+            padding: 1.5rem;
+            border-right: 1px solid #2d4a2d;
+        }
+
+        @media (min-width: 768px) {
+            .token-panel {
+                width: 320px;
+            }
+        }
+
+        .token-panel h2 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #c8e6c8;
+        }
+
+        .token-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .token-detail {
+            padding: 0.75rem;
+            background-color: #2d4a2d;
+            border-radius: 0.5rem;
+        }
+
+        .token-label {
+            display: block;
+            font-size: 0.875rem;
+            color: #a5d6a7;
+        }
+
+        .token-value {
+            display: block;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #e8f5e9;
+        }
+
+        .active-users {
+            margin-top: 2rem;
+        }
+
+        .active-users h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #c8e6c8;
+        }
+
+        .user-avatars {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Chat area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid #2d4a2d;
+            background-color: #1a2e1a;
+        }
+
+        .chat-header h1 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #c8e6c8;
+        }
+
+        .chat-header p {
+            font-size: 0.875rem;
+            color: #a5d6a7;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: #0d1f0d;
+        }
+
+        .message {
+            display: flex;
+            max-width: 80%;
+        }
+
+        .message.own-message {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .own-message .message-avatar {
+            margin-left: 0.75rem;
+        }
+
+        .message:not(.own-message) .message-avatar {
+            margin-right: 0.75rem;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .own-message .message-header {
+            justify-content: flex-end;
+        }
+
+        .message-sender {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #c8e6c8;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #81c784;
+            margin-left: 0.5rem;
+        }
+
+        .message-bubble {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #2d4a2d;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #e8f5e9;
+        }
+
+        .own-message .message-bubble {
+            background-color: #2e7d32;
+            border-top-right-radius: 0;
+        }
+
+        .message:not(.own-message) .message-bubble {
+            border-top-left-radius: 0;
+        }
+
+        .input-area {
+            padding: 1rem;
+            border-top: 1px solid #2d4a2d;
+            background-color: #1a2e1a;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid #3e6b3e;
+            background-color: #2d4a2d;
+            color: #e8f5e9;
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.5);
+        }
+
+        .send-button {
+            padding: 0.75rem 1rem;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-button:hover {
+            background-color: #1b5e20;
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background-color: #1a2e1a;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 28rem;
+            border: 1px solid #2d4a2d;
+        }
+
+        .modal-header {
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #c8e6c8;
+        }
+
+        .modal-body {
+            padding: 1rem 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #a5d6a7;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid #3e6b3e;
+            background-color: #2d4a2d;
+            color: #e8f5e9;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.5);
+        }
+
+        .error-message {
+            color: #ef9a9a;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .avatar-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .avatar-color {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .avatar-color.selected {
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #1a2e1a;
+        }
+
+        .modal-footer {
+            margin-top: 1rem;
+        }
+
+        .modal-button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .modal-button:hover {
+            background-color: #1b5e20;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Rest of your HTML remains the same -->
+    <div class="container">
+        <!-- Token details panel -->
+        <div class="token-panel">
+            <h2>Token Details</h2>
+            <div class="token-details">
+                <div class="token-detail">
+                    <span class="token-label">Price</span>
+                    <span class="token-value">{{ token_data.price|floatformat:6 }} {{ token_data.vsTokenSymbol }}</span>
+                </div>
+                <div class="token-detail">
+                    <span class="token-label">Market Cap</span>
+                    <span class="token-value">${{ token_data.market_cap|floatformat:2 }}</span>
+                </div>
+                <div class="token-detail">
+                    <span class="token-label">Supply</span>
+                    <span class="token-value">{{ token_data.supply|floatformat:"0" }}</span>
+                </div>
+            </div>
+            <div class="active-users">
+                <h3>Active Users</h3>
+                <div class="user-avatars">
+                    <div class="user-avatar" style="background-color: #388e3c;">JD</div>
+                    <div class="user-avatar" style="background-color: #689f38;">SK</div>
+                    <div class="user-avatar" style="background-color: #7cb342;">AL</div>
+                    <div class="user-avatar" style="background-color: #afb42b;">MR</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <h1>{{ token_data.name }} ({{ token_data.symbol }})</h1>
+                <p>Discuss the latest token trends</p>
+            </div>
+            <div class="messages-container" id="chat-log">
+                {% for message in messages %}
+                <div class="message {% if message.user == username %}own-message{% endif %}">
+                    <div class="message-avatar">
+                        {{ message.user|slice:":2"|upper }}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">{{ message.user }}</span>
+                            <span class="message-time">{{ message.timestamp|time }}</span>
+                        </div>
+                        <div class="message-bubble">{{ message.message }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="input-area">
+                <div class="input-container">
+                    <input type="text" class="message-input" id="chat-message-input" placeholder="Type your message...">
+                    <button class="send-button" id="chat-message-submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User onboarding modal -->
+    <div class="modal-overlay" id="user-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Welcome to the Chat</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modal-username" class="form-label">Choose a username</label>
+                    <input type="text" id="modal-username" class="form-input" placeholder="Enter your name">
+                    <p class="error-message hidden" id="username-error">Please enter a username</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Select an avatar color</label>
+                    <div class="avatar-colors" id="avatar-colors">
+                        <div class="avatar-color selected" style="background-color: #388e3c;" data-color="#388e3c"></div>
+                        <div class="avatar-color" style="background-color: #689f38;" data-color="#689f38"></div>
+                        <div class="avatar-color" style="background-color: #afb42b;" data-color="#afb42b"></div>
+                        <div class="avatar-color" style="background-color: #7cb342;" data-color="#7cb342"></div>
+                        <div class="avatar-color" style="background-color: #5d8c3e;" data-color="#5d8c3e"></div>
+                        <div class="avatar-color" style="background-color: #8bc34a;" data-color="#8bc34a"></div>
+                        <div class="avatar-color" style="background-color: #cddc39;" data-color="#cddc39"></div>
+                        <div class="avatar-color" style="background-color: #9e9d24;" data-color="#9e9d24"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-button" id="join-chat">Join Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Your JavaScript remains exactly the same
+        const roomName = '{{ room_name }}';
+        const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+        let currentUser = {
+            name: localStorage.getItem('chat-username') || 'Anonymous',
+            avatarColor: localStorage.getItem('chat-avatar-color') || '#388e3c'
+        };
+
+        // Modal initialization
+        const modal = document.getElementById('user-modal');
+        const avatarOptions = document.querySelectorAll('.avatar-color');
+        let selectedAvatar = currentUser.avatarColor;
+
+        // Show modal if no username stored
+        if (!localStorage.getItem('chat-username')) {
+            modal.style.display = 'flex';
+        } else {
+            modal.style.display = 'none';
+        }
+
+        // Avatar selection
+        avatarOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedAvatar = option.dataset.color;
+                
+                // Update preview
+                const username = document.getElementById('modal-username').value.trim();
+                if (username) {
+                    option.textContent = username.slice(0, 2).toUpperCase();
+                    
+                    // Clear other color elements
+                    document.querySelectorAll('.avatar-color:not(.selected)').forEach(el => {
+                        el.textContent = '';
+                    });
+                }
+            });
+        });
+
+        // Handle join button
+        document.getElementById('join-chat').addEventListener('click', () => {
+            const usernameInput = document.getElementById('modal-username');
+            const username = usernameInput.value.trim() || 'Anonymous';
+            
+            if (!username.trim()) {
+                document.getElementById('username-error').classList.remove('hidden');
+                return;
+            }
+            
+            // Store user preferences
+            localStorage.setItem('chat-username', username);
+            localStorage.setItem('chat-avatar-color', selectedAvatar);
+            currentUser = { 
+                name: username, 
+                avatarColor: selectedAvatar,
+                initials: username.slice(0, 2).toUpperCase()
+            };
+            
+            modal.style.display = 'none';
+        });
+
+        // Handle incoming messages
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const chatLog = document.getElementById('chat-log');
+            
+            const messageEl = document.createElement('div');
+            const isSelf = data.username === currentUser.name;
+            
+            messageEl.className = `message ${isSelf ? 'own-message' : ''}`;
+            messageEl.innerHTML = `
+                <div class="message-avatar" style="background-color: ${data.avatarColor || '#388e3c'}">
+                    ${data.initials || data.username.slice(0, 2).toUpperCase()}
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">${data.username}</span>
+                        <span class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div class="message-bubble">${data.message}</div>
+                </div>
+            `;
+            
+            chatLog.appendChild(messageEl);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        // Send message function
+        function sendMessage() {
+            const messageInput = document.getElementById('chat-message-input');
+            const message = messageInput.value.trim();
+            
+            if(message) {
+                chatSocket.send(JSON.stringify({
+                    'message': message,
+                    'username': currentUser.name,
+                    'avatarColor': currentUser.avatarColor,
+                    'initials': currentUser.initials
+                }));
+                messageInput.value = '';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('chat-message-submit').onclick = sendMessage;
+        
+        document.getElementById('chat-message-input').addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Update send button state
+        document.getElementById('chat-message-input').addEventListener('input', () => {
+            document.getElementById('chat-message-submit').disabled = 
+                !document.getElementById('chat-message-input').value.trim();
+        });
+
+        // Username input handling
+        document.getElementById('modal-username').addEventListener('input', (e) => {
+            const username = e.target.value.trim();
+            const selectedAvatar = document.querySelector('.avatar-color.selected');
+            
+            if (username && selectedAvatar) {
+                selectedAvatar.textContent = username.slice(0, 2).toUpperCase();
+                document.getElementById('username-error').classList.add('hidden');
+            }
+        });
+
+        // Auto-scroll to bottom on load
+        window.addEventListener('load', () => {
+            const chatLog = document.getElementById('chat-log');
+            chatLog.scrollTop = chatLog.scrollHeight;
+        });
+    </script>
+</body>
+</html>
